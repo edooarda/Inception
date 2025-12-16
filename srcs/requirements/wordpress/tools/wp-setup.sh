@@ -5,6 +5,18 @@ cd /var/www/wordpress
 chown -R www-data:www-data /var/www/wordpress
 chmod -R 755 /var/www/wordpress
 
+update_wp_urls() {
+    SCHEME="https"
+    if [ "${PORT}" = "443" ] || [ -z "${PORT}" ]; then
+        URL="${SCHEME}://${DOMAIN_NAME}"
+    else
+        URL="${SCHEME}://${DOMAIN_NAME}:${PORT}"
+    fi
+    echo "Syncing WordPress URLs to: ${URL}"
+    wp option update home "${URL}" --allow-root || true
+    wp option update siteurl "${URL}" --allow-root || true
+}
+
 if [ ! -f wp-config.php ]; then
 
     wp core download --allow-root
@@ -41,9 +53,14 @@ if [ ! -f wp-config.php ]; then
         --role=author \
         --allow-root
 
+    # Sync URLs after install
+    update_wp_urls
+
     echo "WordPress setup complete."
 else
     echo "WordPress is already setup."
+    # Re-sync URLs on every start
+    update_wp_urls
 fi
 
 echo "...Starting PHP-FPM..."

@@ -30,7 +30,7 @@ down:
 
 
 clean: down
-	@docker rm $(docker ps --filter status=exited -q) 2>/dev/null || true
+	@docker system prune -af
 	@docker volume prune -f
 	@echo "$(GREEN)Clean unused volumes and stopped containers!$(RESET)"
 
@@ -42,9 +42,9 @@ fclean:
 	@docker compose -f ${COMPOSE_FILE} down --volumes
 	@docker volume rm $$(docker volume ls -q) 2>/dev/null || true
 	@docker rmi -f $$(docker images -q) 2>/dev/null || true
-	@rm -rf $(HOME)/data/mariadb
-	@rm -rf $(HOME)/data/wordpress
-	@rm -rf $(HOME)/data
+	@sudo rm -rf $(HOME)/data/mariadb
+	@sudo rm -rf $(HOME)/data/wordpress
+	@sudo rm -rf $(HOME)/data
 	@echo "$(GREEN)--COMPLETE DELETION: volumes, images and directories were removed!$(RESET)"
 
 .PHONY: all checker folder up down clean re fclean
